@@ -1,0 +1,17 @@
+[package]
+name = "utctimestamp"
+version = "0.1.0"
+authors = ["Joel Höner <athre0z@zyantific.com>"]
+edition = "2018"
+
+[dependencies]
+chrono = "0.4"
+
+[dependencies.serde]
+version = "1.0"
+optional = true
+features = ["derive"]
+
+[features]
+default = []
+serde-support = ["serde"]
