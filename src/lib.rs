@@ -1,6 +1,17 @@
-use std::fmt::{Display, Formatter};
+//! Simple & fast UTC time types.
+//!
+//! While [chrono](https://crates.io/crates/chrono) is great for dealing with time
+//! in most cases, its 96-bit integer design can be costly when processing and storing
+//! large amounts of timestamp data.
+//!
+//! This lib solves this problem by providing very simple UTC timestamps that can be
+//! converted from and into their corresponding chrono counterpart using Rust's
+//! `From` and `Into` traits. chrono is then used for all things that aren't expected
+//! to occur in big batches, such as formatting and displaying the timestamps.
+
 #[cfg(feature = "serde-support")]
 use serde::{Deserialize, Serialize};
+use std::fmt::{Display, Formatter};
 
 // ============================================================================================== //
 // [UTC timestamp]                                                                                //
@@ -38,6 +49,10 @@ impl From<UtcTimeStamp> for chrono::DateTime<chrono::Utc> {
 
 /// Explicit conversion from and to `i64`.
 impl UtcTimeStamp {
+    pub fn zero() -> Self {
+        UtcTimeStamp(0)
+    }
+
     pub fn from_milliseconds(int: i64) -> Self {
         UtcTimeStamp(int)
     }
@@ -159,7 +174,9 @@ impl TimeDelta {
 // ============================================================================================== //
 
 /// An iterator looping over dates given a time delta as step.
-/// The range is closed both left and right.
+///
+/// The range is either right open or right closed depending on the
+/// constructor chosen, but always left closed.
 ///
 /// Examples:
 ///
