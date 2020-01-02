@@ -25,3 +25,7 @@ converted from and into their corresponding chrono counterpart using Rust's
 `From` and `Into` traits. chrono is then used for all things that aren't expected
 to occur in big batches, such as formatting and displaying the timestamps. 
 
+#### Optional features
+
+`serde-support` — Enable (de)serialization support with serde
+

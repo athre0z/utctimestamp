@@ -3,6 +3,9 @@ name = "utctimestamp"
 version = "0.1.0"
 authors = ["Joel Höner <athre0z@zyantific.com>"]
 edition = "2018"
+repository = "https://github.com/athre0z/utctimestamp"
+description = "Simple & fast 64 bit UTC time types"
+license = "MIT OR Apache-2.0"
 
 [dependencies]
 chrono = "0.4"
