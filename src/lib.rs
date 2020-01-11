@@ -53,6 +53,10 @@ impl UtcTimeStamp {
         UtcTimeStamp(0)
     }
 
+    pub fn now() -> Self {
+        chrono::Utc::now().into()
+    }
+
     pub fn from_milliseconds(int: i64) -> Self {
         UtcTimeStamp(int)
     }
