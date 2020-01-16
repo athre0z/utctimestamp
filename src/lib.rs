@@ -47,20 +47,23 @@ impl From<UtcTimeStamp> for chrono::DateTime<chrono::Utc> {
     }
 }
 
-/// Explicit conversion from and to `i64`.
 impl UtcTimeStamp {
+    /// Initialize a timestamp with 0, `1970-01-01 00:00:00 UTC`.
     pub fn zero() -> Self {
         UtcTimeStamp(0)
     }
 
+    /// Initialize a timestamp using the current local time converted to UTC.
     pub fn now() -> Self {
         chrono::Utc::now().into()
     }
 
+    /// Explicit conversion from `i64`.
     pub fn from_milliseconds(int: i64) -> Self {
         UtcTimeStamp(int)
     }
 
+    /// Explicit conversion to `i64`.
     pub fn as_milliseconds(self) -> i64 {
         self.0
     }
@@ -153,6 +156,7 @@ impl std::ops::Sub<TimeDelta> for TimeDelta {
 }
 
 /// Multiply the timestamp to be n times as long.
+///
 /// `i32` because that's what chrono does.
 impl std::ops::Mul<i32> for TimeDelta {
     type Output = TimeDelta;
