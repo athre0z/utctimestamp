@@ -49,7 +49,7 @@ impl From<UtcTimeStamp> for chrono::DateTime<chrono::Utc> {
 
 impl UtcTimeStamp {
     /// Initialize a timestamp with 0, `1970-01-01 00:00:00 UTC`.
-    pub fn zero() -> Self {
+    pub const fn zero() -> Self {
         UtcTimeStamp(0)
     }
 
@@ -59,12 +59,12 @@ impl UtcTimeStamp {
     }
 
     /// Explicit conversion from `i64`.
-    pub fn from_milliseconds(int: i64) -> Self {
+    pub const fn from_milliseconds(int: i64) -> Self {
         UtcTimeStamp(int)
     }
 
     /// Explicit conversion to `i64`.
-    pub fn as_milliseconds(self) -> i64 {
+    pub const fn as_milliseconds(self) -> i64 {
         self.0
     }
 }
@@ -168,11 +168,11 @@ impl std::ops::Mul<i32> for TimeDelta {
 
 /// Explicit conversion from and to `i64`.
 impl TimeDelta {
-    pub fn from_milliseconds(int: i64) -> Self {
+    pub const fn from_milliseconds(int: i64) -> Self {
         TimeDelta(int)
     }
 
-    pub fn as_milliseconds(self) -> i64 {
+    pub const fn as_milliseconds(self) -> i64 {
         self.0
     }
 }
