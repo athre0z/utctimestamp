@@ -67,6 +67,11 @@ impl UtcTimeStamp {
     pub const fn as_milliseconds(self) -> i64 {
         self.0
     }
+
+    /// Align a timestamp to a given frequency.
+    pub const fn align_to(self, freq: TimeDelta) -> UtcTimeStamp {
+        UtcTimeStamp(self.0 / freq.0 * freq.0)
+    }
 }
 
 /// Calculate the timestamp advanced by a timedelta.
@@ -107,6 +112,15 @@ impl std::ops::Sub<UtcTimeStamp> for UtcTimeStamp {
         TimeDelta(self.0 - rhs.0)
     }
 }
+
+// /// How far away is the timestamp from being aligned to the given timedelta?
+// impl std::ops::Rem<TimeDelta> for UtcTimeStamp {
+//     type Output = TimeDelta;
+//
+//     fn rem(self, rhs: TimeDelta) -> Self::Output {
+//         TimeDelta(self.0 % rhs.0)
+//     }
+// }
 
 // ============================================================================================== //
 // [TimeDelta]                                                                                    //
@@ -155,19 +169,48 @@ impl std::ops::Sub<TimeDelta> for TimeDelta {
     }
 }
 
-/// Multiply the timestamp to be n times as long.
-///
-/// `i32` because that's what chrono does.
-impl std::ops::Mul<i32> for TimeDelta {
+/// Multiply the delta to be n times as long.
+impl std::ops::Mul<i64> for TimeDelta {
     type Output = TimeDelta;
 
-    fn mul(self, rhs: i32) -> Self::Output {
-        TimeDelta(self.0 * i64::from(rhs))
+    fn mul(self, rhs: i64) -> Self::Output {
+        TimeDelta(self.0 * rhs)
+    }
+}
+
+/// Shorten the delta by a given factor. Integer div.
+impl std::ops::Div<i64> for TimeDelta {
+    type Output = TimeDelta;
+
+    fn div(self, rhs: i64) -> Self::Output {
+        TimeDelta(self.0 / rhs)
+    }
+}
+
+/// How many times does the timestamp fit into another?
+impl std::ops::Div<TimeDelta> for TimeDelta {
+    type Output = i64;
+
+    fn div(self, rhs: TimeDelta) -> Self::Output {
+        self.0 / rhs.0
+    }
+}
+
+/// How far away is the delta from being aligned to another delta?
+impl std::ops::Rem<TimeDelta> for TimeDelta {
+    type Output = TimeDelta;
+
+    fn rem(self, rhs: TimeDelta) -> Self::Output {
+        TimeDelta(self.0 % rhs.0)
     }
 }
 
 /// Explicit conversion from and to `i64`.
 impl TimeDelta {
+    pub const fn zero() -> Self {
+        TimeDelta(0)
+    }
+
     pub const fn from_milliseconds(int: i64) -> Self {
         TimeDelta(int)
     }
@@ -273,18 +316,29 @@ mod tests {
     use chrono::{offset::TimeZone, Duration, Utc};
 
     #[test]
+    fn mod_div() {
+        let a = Utc.ymd(2019, 4, 14).and_hms(0, 0, 0);
+        let b = Utc.ymd(2019, 4, 16).and_hms(0, 0, 0);
+
+        // TODO
+    }
+
+    #[test]
     fn open_time_range() {
         let start = Utc.ymd(2019, 4, 14).and_hms(0, 0, 0);
         let end = Utc.ymd(2019, 4, 16).and_hms(0, 0, 0);
         let step = Duration::hours(12);
         let tr: Vec<_> = Iterator::collect(TimeRange::right_closed(start, end, step));
-        assert_eq!(tr, vec![
-            Utc.ymd(2019, 4, 14).and_hms(0, 0, 0).into(),
-            Utc.ymd(2019, 4, 14).and_hms(12, 0, 0).into(),
-            Utc.ymd(2019, 4, 15).and_hms(0, 0, 0).into(),
-            Utc.ymd(2019, 4, 15).and_hms(12, 0, 0).into(),
-            Utc.ymd(2019, 4, 16).and_hms(0, 0, 0).into(),
-        ]);
+        assert_eq!(
+            tr,
+            vec![
+                Utc.ymd(2019, 4, 14).and_hms(0, 0, 0).into(),
+                Utc.ymd(2019, 4, 14).and_hms(12, 0, 0).into(),
+                Utc.ymd(2019, 4, 15).and_hms(0, 0, 0).into(),
+                Utc.ymd(2019, 4, 15).and_hms(12, 0, 0).into(),
+                Utc.ymd(2019, 4, 16).and_hms(0, 0, 0).into(),
+            ]
+        );
     }
 
     #[test]

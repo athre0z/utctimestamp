@@ -1,6 +1,6 @@
 [package]
 name = "utctimestamp"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Joel Höner <athre0z@zyantific.com>"]
 edition = "2018"
 repository = "https://github.com/athre0z/utctimestamp"
