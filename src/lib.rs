@@ -9,9 +9,10 @@
 //! `From` and `Into` traits. chrono is then used for all things that aren't expected
 //! to occur in big batches, such as formatting and displaying the timestamps.
 
+use core::{ops, fmt};
+
 #[cfg(feature = "serde-support")]
 use serde::{Deserialize, Serialize};
-use std::fmt::{Display, Formatter};
 
 // ============================================================================================== //
 // [UTC timestamp]                                                                                //
@@ -19,14 +20,20 @@ use std::fmt::{Display, Formatter};
 
 /// Represents a dumb but fast UTC timestamp.
 #[repr(transparent)]
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[cfg_attr(feature = "serde-support", derive(Serialize, Deserialize))]
 pub struct UtcTimeStamp(i64);
 
 /// Display timestamp using chrono.
-impl Display for UtcTimeStamp {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
+impl fmt::Display for UtcTimeStamp {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         chrono::DateTime::<chrono::Utc>::from(*self).fmt(f)
+    }
+}
+
+impl fmt::Debug for UtcTimeStamp {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "UtcTimeStamp({})", self.0)
     }
 }
 
@@ -75,7 +82,7 @@ impl UtcTimeStamp {
 }
 
 /// Calculate the timestamp advanced by a timedelta.
-impl std::ops::Add<TimeDelta> for UtcTimeStamp {
+impl ops::Add<TimeDelta> for UtcTimeStamp {
     type Output = UtcTimeStamp;
 
     fn add(self, rhs: TimeDelta) -> Self::Output {
@@ -83,14 +90,14 @@ impl std::ops::Add<TimeDelta> for UtcTimeStamp {
     }
 }
 
-impl std::ops::AddAssign<TimeDelta> for UtcTimeStamp {
+impl ops::AddAssign<TimeDelta> for UtcTimeStamp {
     fn add_assign(&mut self, rhs: TimeDelta) {
         *self = *self + rhs;
     }
 }
 
 /// Calculate the timestamp lessened by a timedelta.
-impl std::ops::Sub<TimeDelta> for UtcTimeStamp {
+impl ops::Sub<TimeDelta> for UtcTimeStamp {
     type Output = UtcTimeStamp;
 
     fn sub(self, rhs: TimeDelta) -> Self::Output {
@@ -98,14 +105,14 @@ impl std::ops::Sub<TimeDelta> for UtcTimeStamp {
     }
 }
 
-impl std::ops::SubAssign<TimeDelta> for UtcTimeStamp {
+impl ops::SubAssign<TimeDelta> for UtcTimeStamp {
     fn sub_assign(&mut self, rhs: TimeDelta) {
         *self = *self - rhs;
     }
 }
 
 /// Calculate signed timedelta between two timestamps.
-impl std::ops::Sub<UtcTimeStamp> for UtcTimeStamp {
+impl ops::Sub<UtcTimeStamp> for UtcTimeStamp {
     type Output = TimeDelta;
 
     fn sub(self, rhs: UtcTimeStamp) -> Self::Output {
@@ -114,7 +121,7 @@ impl std::ops::Sub<UtcTimeStamp> for UtcTimeStamp {
 }
 
 // /// How far away is the timestamp from being aligned to the given timedelta?
-// impl std::ops::Rem<TimeDelta> for UtcTimeStamp {
+// impl ops::Rem<TimeDelta> for UtcTimeStamp {
 //     type Output = TimeDelta;
 //
 //     fn rem(self, rhs: TimeDelta) -> Self::Output {
@@ -133,8 +140,8 @@ impl std::ops::Sub<UtcTimeStamp> for UtcTimeStamp {
 pub struct TimeDelta(i64);
 
 /// Display timedelta using chrono.
-impl Display for TimeDelta {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
+impl fmt::Display for TimeDelta {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         chrono::Duration::from(*self).fmt(f)
     }
 }
@@ -153,7 +160,7 @@ impl From<TimeDelta> for chrono::Duration {
     }
 }
 
-impl std::ops::Add<TimeDelta> for TimeDelta {
+impl ops::Add<TimeDelta> for TimeDelta {
     type Output = TimeDelta;
 
     fn add(self, rhs: TimeDelta) -> Self::Output {
@@ -161,7 +168,7 @@ impl std::ops::Add<TimeDelta> for TimeDelta {
     }
 }
 
-impl std::ops::Sub<TimeDelta> for TimeDelta {
+impl ops::Sub<TimeDelta> for TimeDelta {
     type Output = TimeDelta;
 
     fn sub(self, rhs: TimeDelta) -> Self::Output {
@@ -170,7 +177,7 @@ impl std::ops::Sub<TimeDelta> for TimeDelta {
 }
 
 /// Multiply the delta to be n times as long.
-impl std::ops::Mul<i64> for TimeDelta {
+impl ops::Mul<i64> for TimeDelta {
     type Output = TimeDelta;
 
     fn mul(self, rhs: i64) -> Self::Output {
@@ -179,7 +186,7 @@ impl std::ops::Mul<i64> for TimeDelta {
 }
 
 /// Shorten the delta by a given factor. Integer div.
-impl std::ops::Div<i64> for TimeDelta {
+impl ops::Div<i64> for TimeDelta {
     type Output = TimeDelta;
 
     fn div(self, rhs: i64) -> Self::Output {
@@ -188,7 +195,7 @@ impl std::ops::Div<i64> for TimeDelta {
 }
 
 /// How many times does the timestamp fit into another?
-impl std::ops::Div<TimeDelta> for TimeDelta {
+impl ops::Div<TimeDelta> for TimeDelta {
     type Output = i64;
 
     fn div(self, rhs: TimeDelta) -> Self::Output {
@@ -197,7 +204,7 @@ impl std::ops::Div<TimeDelta> for TimeDelta {
 }
 
 /// How far away is the delta from being aligned to another delta?
-impl std::ops::Rem<TimeDelta> for TimeDelta {
+impl ops::Rem<TimeDelta> for TimeDelta {
     type Output = TimeDelta;
 
     fn rem(self, rhs: TimeDelta) -> Self::Output {
