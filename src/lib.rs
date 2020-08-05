@@ -316,14 +316,6 @@ mod tests {
     use chrono::{offset::TimeZone, Duration, Utc};
 
     #[test]
-    fn mod_div() {
-        let a = Utc.ymd(2019, 4, 14).and_hms(0, 0, 0);
-        let b = Utc.ymd(2019, 4, 16).and_hms(0, 0, 0);
-
-        // TODO
-    }
-
-    #[test]
     fn open_time_range() {
         let start = Utc.ymd(2019, 4, 14).and_hms(0, 0, 0);
         let end = Utc.ymd(2019, 4, 16).and_hms(0, 0, 0);
