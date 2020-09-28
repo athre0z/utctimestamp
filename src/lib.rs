@@ -9,7 +9,7 @@
 //! `From` and `Into` traits. chrono is then used for all things that aren't expected
 //! to occur in big batches, such as formatting and displaying the timestamps.
 
-use core::{ops, fmt};
+use core::{fmt, ops};
 
 #[cfg(feature = "serde-support")]
 use serde::{Deserialize, Serialize};
@@ -70,6 +70,11 @@ impl UtcTimeStamp {
         UtcTimeStamp(int)
     }
 
+    /// Explicit conversion from `i64` seconds.
+    pub const fn from_seconds(int: i64) -> Self {
+        UtcTimeStamp(int * 1000)
+    }
+
     /// Explicit conversion to `i64`.
     pub const fn as_milliseconds(self) -> i64 {
         self.0
@@ -77,7 +82,12 @@ impl UtcTimeStamp {
 
     /// Align a timestamp to a given frequency.
     pub const fn align_to(self, freq: TimeDelta) -> UtcTimeStamp {
-        UtcTimeStamp(self.0 / freq.0 * freq.0)
+        self.align_to_anchored(UtcTimeStamp::zero(), freq)
+    }
+
+    /// Align a timestamp to a given frequency, with a time anchor.
+    pub const fn align_to_anchored(self, anchor: UtcTimeStamp, freq: TimeDelta) -> UtcTimeStamp {
+        UtcTimeStamp((self.0 - anchor.0) / freq.0 * freq.0 + anchor.0)
     }
 }
 
@@ -216,6 +226,10 @@ impl ops::Rem<TimeDelta> for TimeDelta {
 impl TimeDelta {
     pub const fn zero() -> Self {
         TimeDelta(0)
+    }
+
+    pub const fn from_seconds(int: i64) -> Self {
+        TimeDelta(int * 1000)
     }
 
     pub const fn from_milliseconds(int: i64) -> Self {
@@ -368,6 +382,39 @@ mod tests {
         assert!(ts2 >= ts3);
         assert_eq!(ts2, ts3);
         assert_ne!(ts1, ts3);
+    }
+
+    #[test]
+    fn align_to_anchored() {
+        let day = Utc.ymd(2020, 9, 28);
+        let ts: UtcTimeStamp = day.and_hms(19, 32, 51).into();
+
+        assert_eq!(
+            ts.align_to_anchored(day.and_hms(0, 0, 0).into(), TimeDelta::from_seconds(60 * 5)),
+            day.and_hms(19, 30, 0).into(),
+        );
+
+        assert_eq!(
+            ts.align_to_anchored(
+                day.and_hms(9 /* irrelevant */, 1, 3).into(),
+                TimeDelta::from_seconds(60 * 5)
+            ),
+            day.and_hms(19, 31, 3).into(),
+        );
+    }
+
+    #[test]
+    fn align_to_anchored_eq() {
+        let day = Utc.ymd(2020, 1, 1);
+        let anchor: UtcTimeStamp = day.and_hms(0, 0, 0).into();
+        let freq = TimeDelta::from_seconds(5 * 60);
+
+        let ts1: UtcTimeStamp = day.and_hms(12, 1, 11).into();
+        let ts2: UtcTimeStamp = day.and_hms(12, 4, 11).into();
+        assert_eq!(
+            ts1.align_to_anchored(anchor, freq),
+            ts2.align_to_anchored(anchor, freq),
+        );
     }
 }
 
