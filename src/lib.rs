@@ -228,6 +228,14 @@ impl TimeDelta {
         TimeDelta(0)
     }
 
+    pub const fn from_hours(int: i64) -> Self {
+        TimeDelta::from_minutes(int * 60)
+    }
+
+    pub const fn from_minutes(int: i64) -> Self {
+        TimeDelta::from_seconds(int * 60)
+    }
+
     pub const fn from_seconds(int: i64) -> Self {
         TimeDelta(int * 1000)
     }
