@@ -93,6 +93,12 @@ impl UtcTimeStamp {
     pub const fn align_to_anchored(self, anchor: UtcTimeStamp, freq: TimeDelta) -> UtcTimeStamp {
         UtcTimeStamp((self.0 - anchor.0) / freq.0 * freq.0 + anchor.0)
     }
+
+    /// Check whether the timestamp is 0 (`1970-01-01 00:00:00 UTC`).
+    #[inline]
+    pub const fn is_zero(self) -> bool {
+        self.0 == 0
+    }
 }
 
 /// Calculate the timestamp advanced by a timedelta.
@@ -256,6 +262,12 @@ impl TimeDelta {
     #[inline]
     pub const fn as_milliseconds(self) -> i64 {
         self.0
+    }
+
+    /// Check whether the timedelta is 0.
+    #[inline]
+    pub const fn is_zero(self) -> bool {
+        self.0 == 0
     }
 }
 
