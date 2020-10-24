@@ -269,6 +269,20 @@ impl TimeDelta {
     pub const fn is_zero(self) -> bool {
         self.0 == 0
     }
+
+    /// Returns `true` if the timedelta is positive and
+    /// `false` if it is zero or negative.
+    #[inline]
+    pub const fn is_positive(self) -> bool {
+        self.0 > 0
+    }
+
+    /// Returns `true` if the timedelta is negative and
+    /// `false` if it is zero or positive.
+    #[inline]
+    pub const fn is_negative(self) -> bool {
+        self.0 < 0
+    }
 }
 
 // ============================================================================================== //
@@ -372,16 +386,13 @@ mod tests {
         let end = Utc.ymd(2019, 4, 16).and_hms(0, 0, 0);
         let step = Duration::hours(12);
         let tr: Vec<_> = Iterator::collect(TimeRange::right_closed(start, end, step));
-        assert_eq!(
-            tr,
-            vec![
-                Utc.ymd(2019, 4, 14).and_hms(0, 0, 0).into(),
-                Utc.ymd(2019, 4, 14).and_hms(12, 0, 0).into(),
-                Utc.ymd(2019, 4, 15).and_hms(0, 0, 0).into(),
-                Utc.ymd(2019, 4, 15).and_hms(12, 0, 0).into(),
-                Utc.ymd(2019, 4, 16).and_hms(0, 0, 0).into(),
-            ]
-        );
+        assert_eq!(tr, vec![
+            Utc.ymd(2019, 4, 14).and_hms(0, 0, 0).into(),
+            Utc.ymd(2019, 4, 14).and_hms(12, 0, 0).into(),
+            Utc.ymd(2019, 4, 15).and_hms(0, 0, 0).into(),
+            Utc.ymd(2019, 4, 15).and_hms(12, 0, 0).into(),
+            Utc.ymd(2019, 4, 16).and_hms(0, 0, 0).into(),
+        ]);
     }
 
     #[test]
